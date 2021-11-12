@@ -62,6 +62,55 @@ async function run() {
       res.json(bookings);
     });
 
+    //id parameter delete
+    app.delete("/properties/:id", async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: ObjectId(id) };
+        const result = await propertyCollection.deleteOne(query);
+        console.log(result);
+        res.send(result);
+        res.json(result);
+      });
+      //update api with id
+    app.put("/properties/:id", async (req, res) => {
+        const id = req.params.id;
+        const updateData = req.body;
+        console.log("hiited update api");
+        const query = { _id: ObjectId(id) };
+        const options = { upsert: true };
+        const updateDoc = {
+          $set: {
+            name: updateData.name,
+            address: updateData.address,
+            description: updateData.description,
+            price: updateData.price,
+            img: updateData.img,
+            stay: updateData.stay,
+          },
+        };
+        const result = await propertyCollection.updateOne(filter, updateDoc, options);
+        console.log(result);
+        res.send(result);
+        res.json(result);
+      });
+
+      //post api
+      app.post("/properties", async (req, res) => {
+        const service = req.body;
+        console.log(service);
+        const result = await propertyCollection.insertOne(service);
+        res.json(result);
+      });
+      //user order api
+      app.post("/order", async (req, res) => {
+        const order = req.body;
+        console.log(order);
+        console.log("order api hited");
+        const result = await order_user.insertOne(order);
+        res.json(result);
+        res.send("order api hitted");
+      });
+
     //check admin user
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
