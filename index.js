@@ -49,6 +49,13 @@ async function run() {
       res.json(result);
       res.send(result);
     });
+    //post reviews
+    app.post("/review", async (req, res) => {
+      const reviewsData = req.body;
+      console.log("value", reviewsData);
+      const result = await review.insertOne(reviewsData);
+      res.json(result);
+    });
 
     //get all booking
     app.get("/bookings", async (req, res) => {
@@ -61,8 +68,28 @@ async function run() {
     //post booking information
     app.post("/booking", async (req, res) => {
       const booking = req.body;
-      console.log("value", booking);
       const result = await bookingInfo.insertOne(booking);
+      res.json(result);
+    });
+
+    //update booking status
+    app.put("/booking/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log("hiited update api");
+      const query = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          status: "shipped",
+        },
+      };
+      const result = await propertyCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      console.log(result);
+      res.send(result);
       res.json(result);
     });
 
@@ -77,7 +104,7 @@ async function run() {
     });
 
     //user booking email
-    app.get("/bookings", async (req, res) => {
+    app.get("/bookings/user", async (req, res) => {
       const email = req.query.email;
       const query = { email: email };
       console.log(email);
@@ -99,21 +126,23 @@ async function run() {
     app.put("/properties/:id", async (req, res) => {
       const id = req.params.id;
       const updateData = req.body;
-      console.log("hiited update api");
+      console.log("hiited update api", updateData);
       const query = { _id: ObjectId(id) };
       const options = { upsert: true };
       const updateDoc = {
         $set: {
-          name: updateData.name,
-          address: updateData.address,
-          description: updateData.description,
+          title: updateData.title,
+          location: updateData.location,
+          rentorsell: updateData.rentorsell,
           price: updateData.price,
+          beds: updateData.beds,
+          sqft: updateData.sqft,
+          baths: updateData.baths,
           img: updateData.img,
-          stay: updateData.stay,
         },
       };
       const result = await propertyCollection.updateOne(
-        filter,
+        query,
         updateDoc,
         options
       );
@@ -128,15 +157,6 @@ async function run() {
       console.log(service);
       const result = await propertyCollection.insertOne(service);
       res.json(result);
-    });
-    //user order api
-    app.post("/order", async (req, res) => {
-      const order = req.body;
-      console.log(order);
-      console.log("order api hited");
-      const result = await order_user.insertOne(order);
-      res.json(result);
-      res.send("order api hitted");
     });
 
     //check admin user
